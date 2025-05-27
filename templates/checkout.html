@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Checkout Hardware</title>
@@ -9,90 +10,97 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="static/searchbar.js"></script>
 </head>
+
 <body>
-<nav class="navbar navbar-inverse">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            {% if current_user.is_authenticated %}
-            <a class="navbar-brand" href="{{url_for('index')}}">Hello, {{ current_user.username }}!</a>
-            {% else %}
-            <a class="navbar-brand" href="{{url_for('index')}}">Hello!</a>
-            {% endif %}
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                {% if current_user.is_authenticated %}
+                <a class="navbar-brand" href="{{url_for('index')}}">Hello, {{ current_user.username }}!</a>
+                {% else %}
+                <a class="navbar-brand" href="{{url_for('index')}}">Hello!</a>
+                {% endif %}
+            </div>
+            <ul class="nav navbar-nav">
+                {% if current_user.is_authenticated %}
+                <li class="active"><a href="{{ url_for('checkout') }}">Checkout Hardware</a></li>
+                <li><a href="{{ url_for('return_hardware') }}">Return Hardware</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                {% else %}
+                <li><a href="{{ url_for('login') }}">Login</a></li>
+                <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
+                {% endif %}
+                <li><a href="{{ url_for('hardware_list') }}">Hardware Board List</a></li>
+            </ul>
         </div>
-        <ul class="nav navbar-nav">
-            {% if current_user.is_authenticated %}
-            <li class="active"><a href="{{ url_for('checkout') }}">Checkout Hardware</a></li>
-            <li><a href="{{ url_for('return_hardware') }}">Return Hardware</a></li>
-            <li><a href="{{ url_for('logout') }}">Logout</a></li>
-            {% else %}
-            <li><a href="{{ url_for('login') }}">Login</a></li>
-            <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
-            {% endif %}
-        </ul>
-    </div>
-</nav>
-<div class="container">
-    {% if flashError == 1 %}
-    <div class="alert alert-danger">
-        Select atleast one hardware board to checkout before clicking Submit.
-    </div>
-    {% endif %}
-    <h2>Checkout Hardware</h2>
-    <p>Keep track of the respective owners of the selected hardware boards.</p>
-    <input type="text" class="live-search-box" placeholder="Enter board name..." />
-    <form id="checkoutForm" method="POST">
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>Select Hardware</th>
-                    <th>Hardware Name</th>
-                    <th>Available Count</th>
-                    <th>Hardware Owner</th>
-                </tr>
-                </thead>
-                <tbody class="live-search-list" id="hardwareList">
-
-                {% for item in hardware %}
-                <tr>
-                    <td>
-                        <div>
-                            <input type="checkbox" name="hardware_ids" value="{{ item.id }}">
-                        </div>
-                    </td>
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.count }}</td>
-                    <td>{{ item.hw_owner.username }}</td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+    </nav>
+    <div class="container">
+        {% if flashError == 1 %}
+        <div class="alert alert-danger">
+            Select atleast one hardware board to checkout before clicking Submit.
         </div>
-        <button id="submitButton" type="button" onClick="checkCheckboxes()">Submit</button>
-    </form>
-</div>
-<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+        {% endif %}
+        <h2>Checkout Hardware</h2>
+        <p>Keep track of the respective owners of the selected hardware boards.</p>
+        <div class="input-group mb-3 mw-100">
+            <input type="text" class="form-control live-search-box" aria-label="target_name"
+                placeholder="Enter board name..." aria-describedby="inputGroup-sizing-default">
+        </div>
+        <form id="checkoutForm" method="POST">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Select Hardware</th>
+                            <th>Hardware Name</th>
+                            <th>Available Count</th>
+                            <th>Hardware Owner</th>
+                        </tr>
+                    </thead>
+                    <tbody class="live-search-list" id="hardwareList">
 
-<script>
-    function checkCheckboxes() {
-        // Get all checkboxes with the name 'option'
-        const checkboxes = document.querySelectorAll('input[name="hardware_ids"]');
-        let isChecked = false;
+                        {% for item in hardware %}
+                        <tr>
+                            <td>
+                                <div>
+                                    <input type="checkbox" name="hardware_ids" value="{{ item.id }}">
+                                </div>
+                            </td>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.count }}</td>
+                            <td>{{ item.hw_owner.username }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <button id="submitButton" type="button" onClick="checkCheckboxes()">Submit</button>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
 
-        // Loop through each checkbox to see if at least one is checked
-        checkboxes.forEach((checkbox) => {
-            if (checkbox.checked) {
-                isChecked = true;
+    <script>
+        function checkCheckboxes() {
+            // Get all checkboxes with the name 'option'
+            const checkboxes = document.querySelectorAll('input[name="hardware_ids"]');
+            let isChecked = false;
+
+            // Loop through each checkbox to see if at least one is checked
+            checkboxes.forEach((checkbox) => {
+                if (checkbox.checked) {
+                    isChecked = true;
+                }
+            });
+
+            // Provide feedback based on whether at least one checkbox is checked
+            if (isChecked) {
+                document.getElementById('checkoutForm').submit();
+            } else {
+                alert("Select atleast one hardware board to return before clicking Submit.");
             }
-        });
-
-        // Provide feedback based on whether at least one checkbox is checked
-        if (isChecked) {
-            document.getElementById('checkoutForm').submit();
-        } else {
-            alert("Select atleast one hardware board to return before clicking Submit.");
         }
-    }
-</script>
+    </script>
 </body>
+
 </html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Available Hardware</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="static/searchbar.js"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                {% if current_user.is_authenticated %}
+                <a class="navbar-brand" href="{{url_for('index')}}">Hello, {{ current_user.username }}!</a>
+                {% else %}
+                <a class="navbar-brand" href="{{url_for('index')}}">Hello!</a>
+                {% endif %}
+            </div>
+            <ul class="nav navbar-nav">
+                {% if current_user.is_authenticated %}
+                <li class="active"><a href="{{ url_for('checkout') }}">Checkout Hardware</a></li>
+                <li><a href="{{ url_for('return_hardware') }}">Return Hardware</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                {% else %}
+                <li><a href="{{ url_for('login') }}">Login</a></li>
+                <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
+                {% endif %}
+                <li class="active"><a href="{{ url_for('hardware_list') }}">Hardware Board List</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="row pt-5">
+        <ul class="nav nav-tabs nav-justified">
+            <li class="active"><a data-toggle="pill" href="#leased_hardware">Leased Hardware</a></li>
+            <li><a data-toggle="pill" href="#unleased_hardware">Unleased Hardware</a></li>
+        </ul>
+    </div>
+
+    <div class="tab-content">
+        <div id="leased_hardware" class="tab-pane fade in active">
+            <div class="container">
+                <div class="input-group mb-3 mw-100">
+                    <input type="text" class="form-control live-search-box" aria-label="target_name"
+                        placeholder="Enter board name..." aria-describedby="inputGroup-sizing-default">
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Hardware Name</th>
+                                <th>Hardware Owner</th>
+                                <th>Hardware Leased By</th>
+                                <th>Hardware Leased On</th>
+                            </tr>
+                        </thead>
+                        <tbody class="live-search-list" id="hardwareList">
+
+                            {% for item in active_checkouts %}
+                            <tr>
+                                <td>{{ item.hardware.name }}</td>
+                                <td>{{ item.hw_leaser.username }}</td>
+                                <td>{{ item.hardware.hw_owner.username }}</td>
+                                <td>{{ item.checkout_date }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div id="unleased_hardware" class="tab-pane fade">
+            <div class="container">
+                <div class="input-group mb-3 mw-100">
+                    <input type="text" class="form-control live-search-box" aria-label="target_name"
+                        placeholder="Enter board name..." aria-describedby="inputGroup-sizing-default">
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Hardware Name</th>
+                                <th>Hardware Owner</th>
+                                <th>Hardware Count</th>
+                            </tr>
+                        </thead>
+                        <tbody class="live-search-list" id="hardwareList">
+
+                            {% for item in unleased_hardware %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.hw_owner.username }}</td>
+                                <td>{{ item.count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+
+</body>
+
+</html>

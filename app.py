@@ -64,20 +64,33 @@ def logout():
     flash('You have been logged out.', 'info')
     return redirect(url_for('index'))
 
+@app.route('/hardware_list', methods=['GET'])
+def hardware_list():
+    active_checkouts = Checkout.query.filter(
+        Checkout.state == 'taken'
+    ).all()
+    unleased_hardware = Hardware.query.filter(
+        Hardware.count > 0).all()
+    return render_template('hardware_list.html', active_checkouts=active_checkouts, unleased_hardware=unleased_hardware)
+
 @app.route('/checkout', methods=['GET', 'POST'])
 @login_required
 def checkout():
     if request.method == 'POST':
-        hardware_ids = request.form.getlist('hardware_ids')
-        for hardware_id in hardware_ids:
-            hardware = Hardware.query.get(hardware_id)
-            if hardware and hardware.count > 0:
-                checkout_entry = Checkout(user_id=current_user.id, hardware_id=hardware.id, state='taken')
-                db.session.add(checkout_entry)
-                hardware.count -= 1
-                db.session.commit()
-        flash('Hardware checked out successfully!', 'success')
-        return redirect(url_for('index'))
+        if current_user.approval_status == 'approved':
+            hardware_ids = request.form.getlist('hardware_ids')
+            for hardware_id in hardware_ids:
+                hardware = Hardware.query.get(hardware_id)
+                if hardware and hardware.count > 0:
+                    checkout_entry = Checkout(user_id=current_user.id, hardware_id=hardware.id, state='taken')
+                    db.session.add(checkout_entry)
+                    hardware.count -= 1
+                    db.session.commit()
+            flash('Hardware checked out successfully!', 'success')
+            return redirect(url_for('index'))
+        else:
+            flash('Checkout failed because user has not been approved yet. Contact the administrator.', 'danger')
+            return redirect(url_for('index'))
 
     hardware = Hardware.query.filter(
         Hardware.count > 0).all()
