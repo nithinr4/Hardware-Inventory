@@ -12,13 +12,13 @@ app.config.from_object(Config)
 
 db = SQLAlchemy(app)
 
-from views import UserAdmin, HardwareAdmin
+from views import UserAdmin, HardwareAdmin, CheckoutAdmin
 from models import User, Hardware, Checkout
 
 admin = Admin(app, name="Hardware Inventory Admin Panel", template_mode='bootstrap4')
 admin.add_view(UserAdmin(User, db.session))
 admin.add_view(HardwareAdmin(Hardware, db.session))
-admin.add_view(ModelView(Checkout, db.session))
+admin.add_view(CheckoutAdmin(Checkout, db.session))
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
