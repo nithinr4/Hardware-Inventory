@@ -16,7 +16,7 @@ class Hardware(db.Model):
     count = db.Column(db.Integer, nullable=False)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     
-    hw_owner = db.relationship('User', backref=db.backref('users', lazy=True))
+    hw_owner = db.relationship('User', backref=db.backref('hw_owner_name', lazy=True))
     checkouts = db.relationship('Checkout', back_populates='hardware')
 
 class Checkout(db.Model):   
@@ -28,5 +28,5 @@ class Checkout(db.Model):
     return_date = db.Column(db.DateTime, nullable=True)
     state = db.Column(db.String(150), nullable=False)
 
-    hw_leaser = db.relationship('User', backref=db.backref('users', lazy=True))
+    hw_leaser = db.relationship('User', backref=db.backref('hw_leaser_name', lazy=True))
     hardware = db.relationship('Hardware', back_populates='checkouts')

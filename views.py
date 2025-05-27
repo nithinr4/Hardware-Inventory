@@ -16,6 +16,6 @@ class HardwareAdmin(AdminModelView):
     column_filters = ('hw_owner.username', 'name', 'count')
 
 class CheckoutAdmin(AdminModelView):
-    column_list = ('hw_leaser.username', 'name', 'count')
-    column_labels = {'hw_leaser.username': 'Hardware Leaser', 'name': 'Board Name', 'count': 'Count'}
-    column_filters = ('hw_leaser.username', 'name', 'count')
+    column_list = ('hw_leaser.username', 'hardware.name', 'checkout_date', 'return_date', 'state')
+    column_labels = {'hw_leaser.username': 'Hardware Leaser', 'hardware.name': 'Board Name', 'checkout_date': 'Checkout Date', 'return_date': 'Return Date', 'state': 'State'}
+    column_filters = ('hw_leaser.username', 'hardware.name', 'checkout_date', 'return_date', 'state')
