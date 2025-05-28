@@ -1,6 +1,6 @@
 from flask_admin.contrib.sqla import ModelView
 from flask_login import current_user
-from wtforms import SelectField 
+from wtforms import SelectField
 
 class AdminModelView(ModelView):
     def is_accessible(self):
@@ -25,6 +25,7 @@ class UserAdmin(AdminModelView):
     column_filters = ('username', 'privilege_level', 'approval_status')
 
 class HardwareAdmin(AdminModelView):
+    form_excluded_columns = ['checkouts']
     column_list = ('hw_owner.username', 'name', 'count')
     column_labels = {'hw_owner.username': 'Hardware Owner', 'name': 'Board Name', 'count': 'Count'}
     column_filters = ('hw_owner.username', 'name', 'count')

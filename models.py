@@ -9,6 +9,9 @@ class User(UserMixin, db.Model):
     privilege_level = db.Column(db.String(50), nullable=False, default='user')
     approval_status = db.Column(db.String(50), nullable=False, default='pending')
 
+    def __str__(self):
+        return self.username
+
 class Hardware(db.Model):
     __tablename__ = 'hardware'
     id = db.Column(db.Integer, primary_key=True)
@@ -18,6 +21,9 @@ class Hardware(db.Model):
     
     hw_owner = db.relationship('User', backref=db.backref('hw_owner_name', lazy=True))
     checkouts = db.relationship('Checkout', back_populates='hardware')
+
+    def __str__(self):
+        return self.name
 
 class Checkout(db.Model):   
     __tablename__ = 'checkout'
