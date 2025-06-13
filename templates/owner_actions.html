@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Owner Actions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    {% extends "navbar.html" %}
+    {% block content %}
+    <div class="row pt-5">
+        <ul class="nav nav-tabs nav-justified">
+            <li class="active"><a data-toggle="pill" href="#pending_checkouts">Pending Checkouts</a></li>
+            <li><a data-toggle="pill" href="#pending_returns">Pending Returns</a></li>
+        </ul>
+    </div>
+
+    <div class="tab-content">
+        <div id="pending_checkouts" class="tab-pane fade in active">
+            <div class="d-flex flex-column gap-3">
+                {% for checkout in pending_checkouts %}
+                <div class="card shadow border-start border-4 border-primary" id="checkout-{{ checkout.id }}">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div class="me-3">
+                            <h5 class="mb-1">{{ checkout.hw_leaser.username }} → <span class="text-primary">{{
+                                    checkout.hardware.name }}</span></h5>
+                            <small class="text-muted">Requested on {{ checkout.pending_checkout_date|to_ist
+                                }} | State: {{ checkout.state }}</small>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-success btn-sm me-2 approve-btn"
+                                data-id="{{ checkout.id }}">Approve</button>
+                            <button class="btn btn-outline-danger btn-sm reject-btn"
+                                data-id="{{ checkout.id }}">Reject</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div id="pending_returns" class="tab-pane fade">
+            <div class="d-flex flex-column gap-3">
+                {% for checkout in pending_returns %}
+                <div class="card shadow border-start border-4 border-warning" id="return-{{ checkout.id }}">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div class="me-3">
+                            <h5 class="mb-1">{{ checkout.hw_leaser.username }} → <span class="text-warning">{{
+                                    checkout.hardware.name }}</span></h5>
+                            <small class="text-muted">Return request raised on {{ checkout.pending_return_date|to_ist if
+                                checkout.pending_return_date|to_ist else 'N/A' }}</small>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-primary btn-sm confirm-btn"
+                                data-id="{{ checkout.id }}">Confirm Return</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+    <script>
+    function postData(url = "", data = {}) {
+        return fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json());
+    }
+
+    $(document).ready(function () {
+        $(".approve-btn").click(function () {
+            const id = $(this).data("id");
+            postData("/approve-checkout", { id: id }).then(data => {
+                console.log("Approved", data);
+                $("#checkout-" + id).remove(); // remove the card on success
+            });
+        });
+
+        $(".reject-btn").click(function () {
+            const id = $(this).data("id");
+            postData("/reject-checkout", { id: id }).then(data => {
+                console.log("Rejected", data);
+                $("#checkout-" + id).remove();
+            });
+        });
+
+        $(".confirm-btn").click(function () {
+            const id = $(this).data("id");
+            postData("/confirm-return", { id: id }).then(data => {
+                console.log("Return Confirmed", data);
+                $("#return-" + id).remove();
+            });
+        });
+    });
+</script>
+    
+    {% endblock %}
+
+</body>
+</html>

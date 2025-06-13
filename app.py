@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, flash, request
+from flask import Flask, render_template, redirect, url_for, flash, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
@@ -6,8 +6,16 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import LoginForm, SignupForm
 from config import Config
+from pytz import timezone, utc
+
+def to_ist_filter(value):
+    if value is None:
+        return ''
+    ist = timezone('Asia/Kolkata')
+    return utc.localize(value).astimezone(ist).strftime('%Y-%m-%d %H:%M')
 
 app = Flask(__name__)
+app.jinja_env.filters['to_ist'] = to_ist_filter
 app.config.from_object(Config)
 
 db = SQLAlchemy(app)
@@ -26,6 +34,13 @@ login_manager.login_view = 'login'
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+@app.context_processor
+def inject_active_page():
+    is_hw_owner = False
+    if current_user.is_authenticated:
+        is_hw_owner = Hardware.query.filter_by(owner_id=current_user.id).first() is not None
+    return dict(active_page=request.endpoint, is_hw_owner=is_hw_owner)
 
 @app.route('/')
 def index():
@@ -82,11 +97,12 @@ def checkout():
             for hardware_id in hardware_ids:
                 hardware = Hardware.query.get(hardware_id)
                 if hardware and hardware.count > 0:
-                    checkout_entry = Checkout(user_id=current_user.id, hardware_id=hardware.id, state='taken')
+                    # checkout_entry = Checkout(user_id=current_user.id, hardware_id=hardware.id, state='taken')
+                    checkout_entry = Checkout(user_id=current_user.id, hardware_id=hardware.id, state='pending_checkout', pending_checkout_date = db.func.current_timestamp())
                     db.session.add(checkout_entry)
                     hardware.count -= 1
                     db.session.commit()
-            flash('Hardware checked out successfully!', 'success')
+            flash('Request to checkout hardware sent. Please wait for approval.', 'success')
             return redirect(url_for('index'))
         else:
             flash('Checkout failed because user has not been approved yet. Contact the administrator.', 'danger')
@@ -105,12 +121,13 @@ def return_hardware():
             checkout = Checkout.query.get(checkout_id)
 
             if checkout and checkout.user_id == current_user.id and not checkout.return_date:
-                hardware = Hardware.query.get(checkout.hardware_id)
-                hardware.count += 1
-                checkout.return_date = db.func.current_timestamp()
-                checkout.state = 'returned'
+                # hardware = Hardware.query.get(checkout.hardware_id)
+                # hardware.count += 1
+                checkout.pending_return_date = db.func.current_timestamp()
+                # checkout.state = 'returned'
+                checkout.state = 'pending_return'
                 db.session.commit()
-        flash('Hardware returned successfully!', 'success')
+        flash('Request to return hardware sent. Contact the hardware owner and return the hardware.', 'success')
         return redirect(url_for('index'))
 
     checkouts = Checkout.query.filter(
@@ -118,6 +135,106 @@ def return_hardware():
         Checkout.state == 'taken').all()
     return render_template('return.html', checkouts=checkouts)
 
+@app.route('/pending', methods=['GET'])
+@login_required
+def pending():
+    pending_checkouts = Checkout.query.filter(
+        Checkout.user_id == current_user.id,
+        Checkout.state == 'pending_checkout').all()
+    pending_returns = Checkout.query.filter(
+        Checkout.user_id == current_user.id,
+        Checkout.state == 'pending_return').all()
+    return render_template('pending.html', pending_checkouts=pending_checkouts, pending_returns=pending_returns)
+
+@app.route('/owner_actions', methods=['GET'])
+@login_required
+def owner_actions():
+    if Hardware.query.filter_by(owner_id=current_user.id).first() is not None:
+        pending_checkouts = Checkout.query.join(Checkout.hardware).join(Hardware.hw_owner).filter(
+            User.id == current_user.id,
+            Checkout.state == 'pending_checkout').all()
+        
+        pending_returns = Checkout.query.join(Checkout.hardware).join(Hardware.hw_owner).filter(
+            User.id == current_user.id,
+            Checkout.state == 'pending_return').all()
+        return render_template('owner_actions.html', pending_checkouts=pending_checkouts, pending_returns=pending_returns)
+    else:
+        flash('Forbidden access!', 'danger')
+        return render_template('index.html')
+    
+@app.route('/approve-checkout', methods=['POST'])
+@login_required
+def approve_checkout():
+    checkout_id = request.json.get("id")
+    # handle approval logic here
+    checkout = Checkout.query.get_or_404(checkout_id)
+    print(checkout.hardware.name)
+    if checkout.hardware.owner_id != current_user.id:
+        abort(403)
+    checkout.state = 'taken'
+    checkout.pending_checkout_date = None
+    checkout.checkout_date = db.func.current_timestamp()
+    db.session.commit()
+    return jsonify({"status": "success", "action": "approved", "id": checkout_id})    
+
+@app.route('/reject-checkout', methods=['POST'])
+@login_required
+def reject_checkout():
+    checkout_id = request.json.get("id")
+    # handle rejection logic here
+    checkout = Checkout.query.get_or_404(checkout_id)
+    if checkout.hardware.owner_id != current_user.id:
+        abort(403)
+    hardware = Hardware.query.get(checkout.hardware_id)
+    hardware.count += 1
+    checkout.state = 'rejected'
+    checkout.pending_checkout_date = None
+    db.session.commit()
+    return jsonify({"status": "success", "action": "rejected", "id": checkout_id})
+
+@app.route('/confirm-return', methods=['POST'])
+@login_required
+def confirm_return():
+    checkout_id = request.json.get("id")
+    # handle confirmation logic here
+    checkout = Checkout.query.get_or_404(checkout_id)
+    if checkout.hardware.owner_id != current_user.id:
+        abort(403)
+    hardware = Hardware.query.get(checkout.hardware_id)
+    hardware.count += 1
+    checkout.pending_return_date = None
+    checkout.return_date = db.func.current_timestamp()
+    checkout.state = 'returned'
+    db.session.commit()
+    return jsonify({"status": "success", "action": "confirmed", "id": checkout_id})
+
+@app.route('/revert-checkout-request', methods=['POST'])
+@login_required
+def revert_checkout_request():
+    checkout_id = request.json.get("id")
+    # handle confirmation logic here
+    checkout = Checkout.query.get_or_404(checkout_id)
+    if checkout.hw_leaser != current_user:
+        abort(403)
+    hardware = Hardware.query.get(checkout.hardware_id)
+    hardware.count += 1
+    checkout.pending_checkout_date = None
+    checkout.state = 'reverted'
+    db.session.commit()
+    return jsonify({"status": "success", "action": "confirmed", "id": checkout_id})
+
+@app.route('/revert-return-request', methods=['POST'])
+@login_required
+def revert_return_request():
+    checkout_id = request.json.get("id")
+    # handle confirmation logic here
+    checkout = Checkout.query.get_or_404(checkout_id)
+    if checkout.hw_leaser != current_user:
+        abort(403)
+    checkout.state = 'taken'
+    checkout.pending_return_date = None
+    db.session.commit()
+    return jsonify({"status": "success", "action": "confirmed", "id": checkout_id})
 
 if __name__ == '__main__':
     with app.app_context():

@@ -30,7 +30,9 @@ class Checkout(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     hardware_id = db.Column(db.Integer, db.ForeignKey('hardware.id'), nullable=False)
-    checkout_date = db.Column(db.DateTime, default=db.func.current_timestamp())
+    pending_checkout_date = db.Column(db.DateTime, nullable=True)
+    pending_return_date = db.Column(db.DateTime, nullable=True)
+    checkout_date = db.Column(db.DateTime, nullable=True)
     return_date = db.Column(db.DateTime, nullable=True)
     state = db.Column(db.String(150), nullable=False)
 

@@ -12,28 +12,9 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-inverse">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                {% if current_user.is_authenticated %}
-                <a class="navbar-brand" href="{{url_for('index')}}">Hello, {{ current_user.username }}!</a>
-                {% else %}
-                <a class="navbar-brand" href="{{url_for('index')}}">Hello!</a>
-                {% endif %}
-            </div>
-            <ul class="nav navbar-nav">
-                {% if current_user.is_authenticated %}
-                <li class="active"><a href="{{ url_for('checkout') }}">Checkout Hardware</a></li>
-                <li><a href="{{ url_for('return_hardware') }}">Return Hardware</a></li>
-                <li><a href="{{ url_for('logout') }}">Logout</a></li>
-                {% else %}
-                <li><a href="{{ url_for('login') }}">Login</a></li>
-                <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
-                {% endif %}
-                <li><a href="{{ url_for('hardware_list') }}">Hardware Board List</a></li>
-            </ul>
-        </div>
-    </nav>
+    {% extends "navbar.html" %}
+    {% block content %}
+
     <div class="container">
         {% if flashError == 1 %}
         <div class="alert alert-danger">
@@ -101,6 +82,8 @@
             }
         }
     </script>
+    {% endblock %}
+
 </body>
 
 </html>
