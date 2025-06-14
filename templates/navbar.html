@@ -1,34 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<body>
-    <nav class="navbar navbar-inverse">
-        <div class="container-fluid">
-            <div class="navbar-header">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        {% if current_user.is_authenticated %}
+        <a class="navbar-brand" href="{{ url_for('index') }}">Hello, {{ current_user.username }}!</a>
+        {% else %}
+        <a class="navbar-brand" href="{{ url_for('index') }}">Hello!</a>
+        {% endif %}
+
+        <!-- Hardware List link directly beside brand -->
+        <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+                <a class="nav-link {% if 'hardware_list' in active_page %}active{% endif %}" href="{{ url_for('hardware_list') }}">
+                    Hardware Board List
+                </a>
+            </li>
+        </ul>
+
+        <!-- Toggler and collapsible nav to the right -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
                 {% if current_user.is_authenticated %}
-                <a class="navbar-brand" href="{{url_for('index')}}">Hello, {{ current_user.username }}!</a>
-                {% else %}
-                <a class="navbar-brand" href="{{url_for('index')}}">Hello!</a>
-                {% endif %}
-            </div>
-            <ul class="nav navbar-nav">
-                {% if current_user.is_authenticated %}
-                <li class="{% if 'checkout' in active_page %}active{% endif %}"><a href="{{ url_for('checkout') }}">Checkout Hardware</a></li>
-                <li class="{% if 'return_hardware' in active_page %}active{% endif %}"><a href="{{ url_for('return_hardware') }}">Return Hardware</a></li>
-                <li class="{% if 'pending' in active_page %}active{% endif %}"><a href="{{ url_for('pending') }}">Pending Requests</a></li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'checkout' in active_page %}active{% endif %}"
+                        href="{{ url_for('checkout') }}">Checkout Hardware</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'return_hardware' in active_page %}active{% endif %}"
+                        href="{{ url_for('return_hardware') }}">Return Hardware</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'pending' in active_page %}active{% endif %}"
+                        href="{{ url_for('pending') }}">Pending Requests</a>
+                </li>
                 {% if is_hw_owner %}
-                <li class="{% if 'owner_actions' in active_page %}active{% endif %}"><a href="{{ url_for('owner_actions') }}">Owner Actions</a></li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'owner_actions' in active_page %}active{% endif %}"
+                        href="{{ url_for('owner_actions') }}">Owner Actions</a>
+                </li>
                 {% endif %}
-                <li class="{% if 'logout' in active_page %}active{% endif %}"><a href="{{ url_for('logout') }}">Logout</a></li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'logout' in active_page %}active{% endif %}"
+                        href="{{ url_for('logout') }}">Logout</a>
+                </li>
                 {% else %}
-                <li class="{% if 'login' in active_page %}active{% endif %}"><a href="{{ url_for('login') }}">Login</a></li>
-                <li class="{% if 'signup' in active_page %}active{% endif %}"><a href="{{ url_for('signup') }}">Sign Up</a></li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'login' in active_page %}active{% endif %}"
+                        href="{{ url_for('login') }}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'signup' in active_page %}active{% endif %}"
+                        href="{{ url_for('signup') }}">Sign Up</a>
+                </li>
                 {% endif %}
-                <li class="{% if 'hardware_list' in active_page %}active{% endif %}"><a href="{{ url_for('hardware_list') }}">Hardware Board List</a></li>
             </ul>
         </div>
-    </nav>
-
-    <div class="container">
-        {% block content %}{% endblock %}
     </div>
-</body>
+</nav>

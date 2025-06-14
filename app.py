@@ -4,7 +4,7 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from forms import LoginForm, SignupForm
+from forms import LoginForm, SignupForm, ModifyAccountForm
 from config import Config
 from pytz import timezone, utc
 
@@ -71,6 +71,26 @@ def signup():
         flash('Account created successfully!', 'success')
         return redirect(url_for('login'))
     return render_template('signup.html', form=form)
+
+@app.route('/update_account', methods=['GET', 'POST'])
+def update_account():
+    form = ModifyAccountForm()
+
+    if form.validate_on_submit():
+        # Check if current password matches
+        user = User.query.filter_by(username = form.username.data).first()
+        if not check_password_hash(user.password_hash, form.current_password.data):
+            flash('Incorrect current password.', 'danger')
+            return redirect(url_for('update_account'))
+
+        # Update fields
+        user.password_hash = generate_password_hash(form.new_password.data)
+
+        db.session.commit()
+        flash('Account updated successfully!', 'success')
+        return redirect(url_for('index'))  # or wherever you want
+
+    return render_template('update_account.html', form=form)
 
 @app.route('/logout')
 @login_required

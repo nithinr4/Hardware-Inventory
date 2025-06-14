@@ -1,92 +1,100 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block title %}Hardware List{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Available Hardware</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="static/searchbar.js"></script>
-</head>
+{% block content %}
+<div class="row pt-4">
+    <ul class="nav nav-tabs nav-justified" id="hardwareTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="leased-tab" data-bs-toggle="tab"
+                data-bs-target="#leased_hardware" type="button" role="tab"
+                aria-controls="leased_hardware" aria-selected="true">
+                Leased Hardware
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="unleased-tab" data-bs-toggle="tab"
+                data-bs-target="#unleased_hardware" type="button" role="tab"
+                aria-controls="unleased_hardware" aria-selected="false">
+                Unleased Hardware
+            </button>
+        </li>
+    </ul>
+</div>
 
-<body>
-    {% extends "navbar.html" %}
-    {% block content %}
-    <div class="row pt-5">
-        <ul class="nav nav-tabs nav-justified">
-            <li class="active"><a data-toggle="pill" href="#leased_hardware">Leased Hardware</a></li>
-            <li><a data-toggle="pill" href="#unleased_hardware">Unleased Hardware</a></li>
-        </ul>
-    </div>
-
-    <div class="tab-content">
-        <div id="leased_hardware" class="tab-pane fade in active">
-            <div class="container">
-                <div class="input-group mb-3 mw-100">
-                    <input type="text" class="form-control live-search-box" aria-label="target_name"
-                        placeholder="Enter board name..." aria-describedby="inputGroup-sizing-default">
-                </div>
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Hardware Name</th>
-                                <th>Hardware Leased By</th>
-                                <th>Hardware Owner</th>
-                                <th>Hardware Leased On</th>
-                            </tr>
-                        </thead>
-                        <tbody class="live-search-list" id="hardwareList">
-
-                            {% for item in active_checkouts %}
-                            <tr>
-                                <td>{{ item.hardware.name }}</td>
-                                <td>{{ item.hw_leaser.username }}</td>
-                                <td>{{ item.hardware.hw_owner.username }}</td>
-                                <td>{{ item.checkout_date }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+<div class="tab-content pt-3" id="hardwareTabsContent">
+    <div class="tab-pane fade show active" id="leased_hardware" role="tabpanel" aria-labelledby="leased-tab">
+        <div class="container">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control live-search-box" placeholder="Enter board name...">
             </div>
-        </div>
-        <div id="unleased_hardware" class="tab-pane fade">
-            <div class="container">
-                <div class="input-group mb-3 mw-100">
-                    <input type="text" class="form-control live-search-box" aria-label="target_name"
-                        placeholder="Enter board name..." aria-describedby="inputGroup-sizing-default">
-                </div>
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Hardware Name</th>
-                                <th>Hardware Owner</th>
-                                <th>Hardware Count</th>
-                            </tr>
-                        </thead>
-                        <tbody class="live-search-list" id="hardwareList">
-
-                            {% for item in unleased_hardware %}
-                            <tr>
-                                <td>{{ item.name }}</td>
-                                <td>{{ item.hw_owner.username }}</td>
-                                <td>{{ item.count }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Hardware Name</th>
+                            <th>Leased By</th>
+                            <th>Owner</th>
+                            <th>Leased On</th>
+                        </tr>
+                    </thead>
+                    <tbody class="live-search-list">
+                        {% for item in active_checkouts %}
+                        <tr>
+                            <td>{{ item.hardware.name }}</td>
+                            <td>{{ item.hw_leaser.username }}</td>
+                            <td>{{ item.hardware.hw_owner.username }}</td>
+                            <td>{{ item.checkout_date }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.js"
-        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
-    {% endblock %}
 
-</body>
+    <div class="tab-pane fade" id="unleased_hardware" role="tabpanel" aria-labelledby="unleased-tab">
+        <div class="container">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control live-search-box" placeholder="Enter board name...">
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Hardware Name</th>
+                            <th>Owner</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody class="live-search-list">
+                        {% for item in unleased_hardware %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.hw_owner.username }}</td>
+                            <td>{{ item.count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
-</html>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".live-search-box").forEach(input => {
+            input.addEventListener("input", function () {
+                const searchTerm = this.value.toLowerCase();
+                const tbody = this.closest(".container").querySelector(".live-search-list");
+                const rows = tbody.querySelectorAll("tr");
+
+                rows.forEach(row => {
+                    const match = row.textContent.toLowerCase().includes(searchTerm);
+                    row.style.display = match ? "" : "none";
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

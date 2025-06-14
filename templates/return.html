@@ -1,78 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block title %}Return Hardware{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Return Hardware</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-</head>
-
-<body>
-    {% extends "navbar.html" %}
-    {% block content %}
-    <div class="container">
-        <h2>Return Hardware</h2>
-        <p>Ensure that you return the hardware to the respective hardware owner.</p>
-        <div class="input-group mb-3 mw-100">
-            <input type="text" class="form-control live-search-box" aria-label="target_name"
-                placeholder="Enter board name..." aria-describedby="inputGroup-sizing-default">
-        </div>
-        <form id="returnForm" method="POST">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Select Hardware</th>
-                            <th>Hardware Name</th>
-                            <th>Hardware Owner</th>
-                            <th>Checked Out On</th>
-                        </tr>
-                    </thead>
-
-                    <tbody class="live-search-list" id="hardwareList">
-                        {% for checkout in checkouts %}
-                        <tr>
-                            <td>
-                                <div>
-                                    <input type="checkbox" name="checkout_ids" value="{{ checkout.id }}">
-                                </div>
-                            </td>
-                            <td>{{ checkout.hardware.name }}</td>
-                            <td>{{ checkout.hardware.hw_owner.username }}</td>
-                            <td>{{ checkout.checkout_date|to_ist }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <button id="returnButton" type="button" onClick="checkCheckboxes()">Return</button>
-        </form>
+{% block content %}
+<div class="container">
+    <h2>Return Hardware</h2>
+    <p>Ensure that you return the hardware to the respective hardware owner.</p>
+    <div class="input-group mb-3 mw-100">
+        <input type="text" class="form-control live-search-box" aria-label="target_name"
+            placeholder="Enter board name..." aria-describedby="inputGroup-sizing-default">
     </div>
-    <script>
-        function checkCheckboxes() {
-            // Get all checkboxes with the name 'option'
-            const checkboxes = document.querySelectorAll('input[name="checkout_ids"]');
-            let isChecked = false;
+    <form id="returnForm" method="POST">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Select Hardware</th>
+                        <th>Hardware Name</th>
+                        <th>Hardware Owner</th>
+                        <th>Checked Out On</th>
+                    </tr>
+                </thead>
 
-            // Loop through each checkbox to see if at least one is checked
-            checkboxes.forEach((checkbox) => {
-                if (checkbox.checked) {
-                    isChecked = true;
-                }
-            });
+                <tbody class="live-search-list" id="hardwareList">
+                    {% for checkout in checkouts %}
+                    <tr>
+                        <td>
+                            <div>
+                                <input type="checkbox" name="checkout_ids" value="{{ checkout.id }}">
+                            </div>
+                        </td>
+                        <td>{{ checkout.hardware.name }}</td>
+                        <td>{{ checkout.hardware.hw_owner.username }}</td>
+                        <td>{{ checkout.checkout_date|to_ist }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <button id="returnButton" type="button" onClick="checkCheckboxes()">Return</button>
+    </form>
+</div>
+<script>
+    function checkCheckboxes() {
+        // Get all checkboxes with the name 'option'
+        const checkboxes = document.querySelectorAll('input[name="checkout_ids"]');
+        let isChecked = false;
 
-            // Provide feedback based on whether at least one checkbox is checked
-            if (isChecked) {
-                document.getElementById('returnForm').submit();
-            } else {
-                alert("Select atleast one hardware board to return before clicking Return.");
+        // Loop through each checkbox to see if at least one is checked
+        checkboxes.forEach((checkbox) => {
+            if (checkbox.checked) {
+                isChecked = true;
             }
-        }
-    </script>
-    {% endblock %}
-</body>
+        });
 
-</html>
+        // Provide feedback based on whether at least one checkbox is checked
+        if (isChecked) {
+            document.getElementById('returnForm').submit();
+        } else {
+            alert("Select atleast one hardware board to return before clicking Return.");
+        }
+    }
+</script>
+{% endblock %}

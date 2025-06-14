@@ -1,50 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-</head>
-<body>
-{% extends "navbar.html" %}
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
 {% block content %}
-</nav>
-<div class="container">
+
+<div class="container mt-5" style="max-width: 500px;">
+    <h2 class="mb-4">Login</h2>
+
     {% if formError == 1 %}
-    <div class="alert alert-danger">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
         Incorrect username or password. Please try again.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     {% endif %}
-    <h2>Login</h2>
+
     <form method="POST">
         {{ form.hidden_tag() }}
-        <div>
-            {{ form.username.label }}<br>
-            {{ form.username(size=32) }}<br>
+
+        <div class="mb-3">
+            {{ form.username.label(class="form-label") }}
+            {{ form.username(class="form-control", placeholder="Enter username") }}
             {% for error in form.username.errors %}
-            <div class="alert alert-danger">
-                {{ error }}
-            </div>
+            <div class="text-danger small">{{ error }}</div>
             {% endfor %}
         </div>
-        <div>
-            {{ form.password.label }}<br>
-            {{ form.password(size=32) }}<br>
+
+        <div class="mb-3">
+            {{ form.password.label(class="form-label") }}
+            {{ form.password(class="form-control", placeholder="Enter password") }}
             {% for error in form.password.errors %}
-            <div class="alert alert-danger">
-                {{ error }}
-            </div>
+            <div class="text-danger small">{{ error }}</div>
             {% endfor %}
         </div>
-        <div>
-            {{ form.submit() }}
-        </div>
+
+        <button type="submit" class="btn btn-primary w-100">{{ form.submit.label.text }}</button>
     </form>
-    <p>Don't have an account? <a href="{{ url_for('signup') }}">Sign Up</a></p>
+
+    <p class="mt-3 text-center">
+        Don't have an account? <a href="{{ url_for('signup') }}">Sign Up</a><br>
+        Forgot password? <a href="{{ url_for('update_account') }}">Update Credentials</a>
+    </p>
 </div>
+
 {% endblock %}
-</body>
-</html>

@@ -1,102 +1,106 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block title %}Pending Requests{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Pending Requests</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-</head>
+{% block content %}
+<div class="row pt-4">
+    <ul class="nav nav-tabs nav-justified" id="pendingTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pending-checkouts-tab" data-bs-toggle="tab"
+                    data-bs-target="#pending-checkouts" type="button" role="tab"
+                    aria-controls="pending-checkouts" aria-selected="true">
+                Pending Checkouts
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pending-returns-tab" data-bs-toggle="tab"
+                    data-bs-target="#pending-returns" type="button" role="tab"
+                    aria-controls="pending-returns" aria-selected="false">
+                Pending Returns
+            </button>
+        </li>
+    </ul>
+</div>
 
-<body>
-    {% extends "navbar.html" %}
-    {% block content %}
-    <div class="row pt-5">
-        <ul class="nav nav-tabs nav-justified">
-            <li class="active"><a data-toggle="pill" href="#pending_checkouts">Pending Checkouts</a></li>
-            <li><a data-toggle="pill" href="#pending_returns">Pending Returns</a></li>
-        </ul>
-    </div>
-
-    <div class="tab-content">
-        <div id="pending_checkouts" class="tab-pane fade in active">
-            <div class="d-flex flex-column gap-3">
-                {% for checkout in pending_checkouts %}
-                <div class="card shadow border-start border-4 border-primary" id="checkout-{{ checkout.id }}">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div class="me-3">
-                            <h5 class="mb-1">{{ checkout.hw_leaser.username }} → <span class="text-primary">{{
-                                    checkout.hardware.name }}</span></h5>
-                            <small class="text-muted">Requested on {{ checkout.pending_checkout_date|to_ist
-                                }} | State: {{ checkout.state }}</small>
-                        </div>
-                        <div>
-                            <button class="btn btn-outline-success btn-sm me-2 revert-checkout-btn"
+<div class="tab-content pt-3" id="pendingTabsContent">
+    <div class="tab-pane fade show active" id="pending-checkouts" role="tabpanel"
+         aria-labelledby="pending-checkouts-tab">
+        <div class="d-flex flex-column gap-3">
+            {% for checkout in pending_checkouts %}
+            <div class="card shadow border-start border-4 border-primary" id="checkout-{{ checkout.id }}">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div class="me-3">
+                        <h5 class="mb-1">
+                            {{ checkout.hw_leaser.username }} →
+                            <span class="text-primary">{{ checkout.hardware.name }}</span>
+                        </h5>
+                        <small class="text-muted">
+                            Requested on {{ checkout.pending_checkout_date | to_ist }} |
+                            State: {{ checkout.state }}
+                        </small>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline-success btn-sm me-2 revert-checkout-btn"
                                 data-id="{{ checkout.id }}">Revert Request</button>
-                        </div>
                     </div>
                 </div>
-                {% endfor %}
             </div>
-        </div>
-        <div id="pending_returns" class="tab-pane fade">
-            <div class="d-flex flex-column gap-3">
-                {% for checkout in pending_returns %}
-                <div class="card shadow border-start border-4 border-warning" id="return-{{ checkout.id }}">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div class="me-3">
-                            <h5 class="mb-1">{{ checkout.hw_leaser.username }} → <span class="text-warning">{{
-                                    checkout.hardware.name }}</span></h5>
-                            <small class="text-muted">Return request raised on {{ checkout.pending_return_date|to_ist if
-                                checkout.pending_return_date|to_ist else 'N/A' }}</small>
-                        </div>
-                        
-                        <div>
-                            <button class="btn btn-outline-success btn-sm me-2 revert-return-btn"
-                                data-id="{{ checkout.id }}">Revert Request</button>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
+            {% endfor %}
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.js"
-        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
-    <script>
-        function postData(url = "", data = {}) {
-            return fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json());
-        }
 
-        $(document).ready(function () {
-            $(".revert-checkout-btn").click(function () {
-                const id = $(this).data("id");
-                postData("/revert-checkout-request", { id: id }).then(data => {
-                    console.log("Approved", data);
-                    $("#checkout-" + id).remove(); // remove the card on success
-                });
-            });
+    <div class="tab-pane fade" id="pending-returns" role="tabpanel"
+         aria-labelledby="pending-returns-tab">
+        <div class="d-flex flex-column gap-3">
+            {% for checkout in pending_returns %}
+            <div class="card shadow border-start border-4 border-warning" id="return-{{ checkout.id }}">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div class="me-3">
+                        <h5 class="mb-1">
+                            {{ checkout.hw_leaser.username }} →
+                            <span class="text-warning">{{ checkout.hardware.name }}</span>
+                        </h5>
+                        <small class="text-muted">
+                            Return request raised on {{ checkout.pending_return_date | to_ist if checkout.pending_return_date | to_ist else 'N/A' }}
+                        </small>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline-success btn-sm me-2 revert-return-btn"
+                                data-id="{{ checkout.id }}">Revert Request</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
 
-            $(".revert-return-btn").click(function () {
-                const id = $(this).data("id");
-                postData("/revert-return-request", { id: id }).then(data => {
-                    console.log("Approved", data);
-                    $("#return-" + id).remove(); // remove the card on success
+<script>
+    function postData(url = "", data = {}) {
+        return fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        }).then(response => response.json());
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".revert-checkout-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const id = btn.getAttribute("data-id");
+                postData("/revert-checkout-request", { id }).then(() => {
+                    document.getElementById("checkout-" + id)?.remove();
                 });
             });
         });
-    </script>
-    {% endblock %}
 
-</body>
-
-</html>
+        document.querySelectorAll(".revert-return-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const id = btn.getAttribute("data-id");
+                postData("/revert-return-request", { id }).then(() => {
+                    document.getElementById("return-" + id)?.remove();
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}
