@@ -27,7 +27,7 @@ admin_utils = Blueprint("admin_utils", __name__)
 
 @admin_utils.route("/admin/download-db")
 def download_db():
-    if not current_user.is_authenticated or not current_user.privilege_level == "admin":
+    if not current_user.is_authenticated or not (current_user.privilege_level == "admin" and current_user.approval_status == 'approved'):
         flash("Unauthorized access", "danger")
         return redirect(url_for("admin.index"))
 

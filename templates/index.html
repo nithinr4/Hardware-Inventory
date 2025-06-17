@@ -3,16 +3,99 @@
 
 {% block content %}
 {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">
-        {{ message }}
-        </div>
-    {% endfor %}
-    {% endif %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endfor %}
+{% endif %}
 {% endwith %}
-<div class="jumbotron text-center">
-  <h1>Welcome to the Hardware Inventory Management System</h1>
-    <p>To no longer misplacing our hardware boards and components!</p>
+
+<style>
+    .welcome-section {
+        background: linear-gradient(to right, #4caf50, #81c784);
+        color: white;
+        border-radius: 10px;
+        padding: 3rem 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .card {
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .card:hover {
+        transform: scale(1.03);
+    }
+
+    .card-title {
+        color: #343a40;
+    }
+
+    .card-inventory {
+        border-left: 5px solid #0d6efd;
+    }
+
+    .card-checkout {
+        border-left: 5px solid #198754;
+    }
+
+    .card-return {
+        border-left: 5px solid #dc3545;
+    }
+
+    .footer-note {
+        background-color: #f1f3f5;
+        padding: 1rem;
+        border-radius: 6px;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="text-center welcome-section shadow">
+        <h1 class="display-5 fw-bold">Hardware Inventory Management</h1>
+        <p class="lead">Never lose track of your boards again. Checkout, monitor, and return hardware effortlessly.</p>
+    </div>
+
+    <div class="row text-center g-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 card-inventory h-100">
+                <div class="card-body">
+                    <h5 class="card-title fw-semibold">📦 View Inventory</h5>
+                    <p class="card-text text-muted">Browse all available and leased hardware items.</p>
+                    <a href="{{ url_for('hardware_list') }}" class="btn btn-primary btn-sm">Go to Inventory</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 card-checkout h-100">
+                <div class="card-body">
+                    <h5 class="card-title fw-semibold">🛒 Checkout Hardware</h5>
+                    <p class="card-text text-muted">Select and reserve the boards you need.</p>
+                    <a href="{{ url_for('checkout') }}" class="btn btn-success btn-sm">Checkout Now</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 card-return h-100">
+                <div class="card-body">
+                    <h5 class="card-title fw-semibold">📤 Return Hardware</h5>
+                    <p class="card-text text-muted">Complete your returns easily and update availability.</p>
+                    <a href="{{ url_for('return_hardware') }}" class="btn btn-danger btn-sm">Return Items</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5 text-center footer-note">
+        <p class="text-muted small mb-0">
+            ⚠️ Please make sure to return all hardware on time to help keep inventory up-to-date and accessible to
+            others.
+        </p>
+    </div>
 </div>
 {% endblock %}

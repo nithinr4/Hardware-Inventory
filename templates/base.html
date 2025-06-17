@@ -1,6 +1,7 @@
 <!-- templates/base.html -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}My Flask App{% endblock %}</title>
@@ -11,8 +12,42 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script type="text/javascript" src="static/searchbar.js"></script>
 </head>
-<body>
 
+<body>
+    <style>
+        body {
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+        }
+
+        /* General override for tab style */
+        .nav-tabs .nav-link {
+            background-color: #dee2e6;
+            color: #495057;
+            font-weight: 500;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .nav-tabs .nav-link:hover {
+            background-color: #ced4da;
+            color: #000;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: #0d6efd;
+            /* Bootstrap primary color */
+            color: #fff;
+            border-color: #0d6efd #0d6efd #fff;
+        }
+
+        .nav-tabs {
+            border-bottom: 2px solid #0d6efd;
+        }
+
+        /* Optional: slightly round the edges */
+        .nav-tabs .nav-link {
+            border-radius: 0.3rem 0.3rem 0 0;
+        }
+    </style>
     {% include "navbar.html" %}
 
     <div class="container mt-4">
@@ -20,4 +55,5 @@
     </div>
 
 </body>
+
 </html>
