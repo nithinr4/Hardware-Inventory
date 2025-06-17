@@ -5,8 +5,9 @@ from flask_admin.contrib.sqla import ModelView
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import LoginForm, SignupForm, ModifyAccountForm
-from config import Config
+from config import config_by_name
 from pytz import timezone, utc
+import os
 
 def to_ist_filter(value):
     if value is None:
@@ -14,11 +15,12 @@ def to_ist_filter(value):
     ist = timezone('Asia/Kolkata')
     return utc.localize(value).astimezone(ist).strftime('%Y-%m-%d %H:%M')
 
+db = SQLAlchemy()
+env = os.environ.get("FLASK_ENV", "development")
 app = Flask(__name__)
 app.jinja_env.filters['to_ist'] = to_ist_filter
-app.config.from_object(Config)
-
-db = SQLAlchemy(app)
+app.config.from_object(config_by_name[env])
+db.init_app(app)
 
 from views import UserAdmin, HardwareAdmin, CheckoutAdmin
 from models import User, Hardware, Checkout

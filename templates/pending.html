@@ -34,8 +34,8 @@
                             <span class="text-primary">{{ checkout.hardware.name }}</span>
                         </h5>
                         <small class="text-muted">
-                            Requested on {{ checkout.pending_checkout_date | to_ist }} |
-                            State: {{ checkout.state }}
+                            Requested on {{ checkout.pending_checkout_date | to_ist }} <br>
+                            Hardware Owner: {{ checkout.hardware.hw_owner.username }}
                         </small>
                     </div>
                     <div>
@@ -60,7 +60,8 @@
                             <span class="text-warning">{{ checkout.hardware.name }}</span>
                         </h5>
                         <small class="text-muted">
-                            Return request raised on {{ checkout.pending_return_date | to_ist if checkout.pending_return_date | to_ist else 'N/A' }}
+                            Return request raised on {{ checkout.pending_return_date | to_ist if checkout.pending_return_date | to_ist else 'N/A' }} <br>
+                            Hardware Owner: {{ checkout.hardware.hw_owner.username }}
                         </small>
                     </div>
                     <div>
