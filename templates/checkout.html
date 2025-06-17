@@ -17,18 +17,22 @@
     </div>
 
     <form id="checkoutForm" method="POST">
-        <div id="hardwareList" class="d-flex flex-column gap-3 live-search-list">
+        <div id="hardwareList" class="row live-search-list">
             {% for item in hardware %}
-            <div class="card p-3 shadow-sm border border-2 border-secondary hardware-card" 
-                 data-id="{{ item.id }}" onclick="toggleSelect(this)">
-                <input type="checkbox" name="hardware_ids" value="{{ item.id }}" class="d-none">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="card-details">
-                        <h6 class="mb-1 fw-semibold card-title">{{ item.name }}</h6>
-                        <small class="text-muted card-meta">Available: {{ item.count }} | Owner: {{ item.hw_owner.username }}</small>
-                    </div>
-                    <div class="selected-indicator" style="font-size: 1.3rem; color: #28a745; display: none;">
-                        ✓
+            <div class="col-md-6 mb-4 hardware-col">
+                <div class="card p-3 shadow-sm border border-2 border-secondary hardware-card" 
+                     data-id="{{ item.id }}" onclick="toggleSelect(this)">
+                    <input type="checkbox" name="hardware_ids" value="{{ item.id }}" class="d-none">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="card-details">
+                            <h6 class="mb-1 fw-semibold card-title">{{ item.name }}</h6>
+                            <small class="text-muted card-meta">
+                                Available: {{ item.count }} | Owner: {{ item.hw_owner.username }}
+                            </small>
+                        </div>
+                        <div class="selected-indicator" style="font-size: 1.3rem; color: #28a745; display: none;">
+                            ✓
+                        </div>
                     </div>
                 </div>
             </div>
@@ -98,11 +102,11 @@
     let currentPage = 1;
 
     function paginate() {
-        const cards = document.querySelectorAll('.hardware-card');
-        const totalPages = Math.ceil(cards.length / cardsPerPage);
+        const cardWrappers = document.querySelectorAll('.hardware-col');
+        const totalPages = Math.ceil(cardWrappers.length / cardsPerPage);
 
-        cards.forEach((card, index) => {
-            card.style.display = (index >= (currentPage - 1) * cardsPerPage && index < currentPage * cardsPerPage)
+        cardWrappers.forEach((wrapper, index) => {
+            wrapper.style.display = (index >= (currentPage - 1) * cardsPerPage && index < currentPage * cardsPerPage)
                 ? 'block' : 'none';
         });
 
@@ -118,8 +122,8 @@
     });
 
     document.getElementById('nextBtn').addEventListener('click', () => {
-        const cards = document.querySelectorAll('.hardware-card');
-        if (currentPage < Math.ceil(cards.length / cardsPerPage)) {
+        const cardWrappers = document.querySelectorAll('.hardware-col');
+        if (currentPage < Math.ceil(cardWrappers.length / cardsPerPage)) {
             currentPage++;
             paginate();
         }
@@ -127,6 +131,16 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         paginate();
+    });
+
+    // Optional: live search logic (if implemented)
+    document.querySelector('.live-search-box')?.addEventListener('input', function (e) {
+        const query = e.target.value.toLowerCase();
+        document.querySelectorAll('#hardwareList .hardware-col').forEach(function (wrapper) {
+            const card = wrapper.querySelector('.hardware-card');
+            const name = card.querySelector('.card-title').innerText.toLowerCase();
+            wrapper.style.display = name.includes(query) ? '' : 'none';
+        });
     });
 </script>
 {% endblock %}

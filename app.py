@@ -1,6 +1,7 @@
-from flask import Flask, render_template, redirect, url_for, flash, request, jsonify
+from flask import Flask, render_template, redirect, url_for, flash, request, jsonify, Blueprint, send_file
 from flask_sqlalchemy import SQLAlchemy
-from flask_admin import Admin
+from flask_admin import Admin, AdminIndexView, expose
+from flask_admin.menu import MenuLink
 from flask_admin.contrib.sqla import ModelView
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -22,6 +23,22 @@ app.jinja_env.filters['to_ist'] = to_ist_filter
 app.config.from_object(config_by_name[env])
 db.init_app(app)
 
+admin_utils = Blueprint("admin_utils", __name__)
+
+@admin_utils.route("/admin/download-db")
+def download_db():
+    if not current_user.is_authenticated or not current_user.privilege_level == "admin":
+        flash("Unauthorized access", "danger")
+        return redirect(url_for("admin.index"))
+
+    db_path = os.path.join('instance', app.config["SQLALCHEMY_DATABASE_URI"].replace("sqlite:///", ""))
+    if os.path.exists(db_path):
+        return send_file(db_path, as_attachment=True)
+    else:
+        flash("Database file not found", "danger")
+        return redirect(url_for("admin.index"))
+app.register_blueprint(admin_utils)
+
 from views import UserAdmin, HardwareAdmin, CheckoutAdmin
 from models import User, Hardware, Checkout
 
@@ -29,6 +46,7 @@ admin = Admin(app, name="Admin Panel", template_mode='bootstrap4')
 admin.add_view(UserAdmin(User, db.session))
 admin.add_view(HardwareAdmin(Hardware, db.session))
 admin.add_view(CheckoutAdmin(Checkout, db.session))
+admin.add_link(MenuLink(name="Download DB", url="/admin/download-db", category="Tools"))
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'

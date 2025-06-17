@@ -25,12 +25,13 @@
 
     <!-- Tab Content -->
     <div class="tab-content pt-4" id="hardwareTabsContent">
+
         <!-- Leased Hardware Tab -->
         <div class="tab-pane fade show active" id="leased_hardware" role="tabpanel" aria-labelledby="leased-tab">
             <input type="text" class="form-control live-search-box mb-3" placeholder="Enter board name...">
-            <div class="d-flex flex-column gap-3 live-search-list" id="leasedList">
+            <div class="row live-search-list" id="leasedList">
                 {% for item in active_checkouts %}
-                <div class="card-wrapper">
+                <div class="col-md-6 mb-4 card-wrapper">
                     <div class="card p-3 shadow-sm border border-secondary hardware-card">
                         <div class="card-details">
                             <h6 class="fw-semibold mb-1 card-title">{{ item.hardware.name }}</h6>
@@ -51,9 +52,9 @@
         <!-- Unleased Hardware Tab -->
         <div class="tab-pane fade" id="unleased_hardware" role="tabpanel" aria-labelledby="unleased-tab">
             <input type="text" class="form-control live-search-box mb-3" placeholder="Enter board name...">
-            <div class="d-flex flex-column gap-3 live-search-list" id="unleasedList">
+            <div class="row live-search-list" id="unleasedList">
                 {% for item in unleased_hardware %}
-                <div class="card-wrapper">
+                <div class="col-md-6 mb-4 card-wrapper">
                     <div class="card p-3 shadow-sm border border-secondary hardware-card">
                         <div>
                             <h6 class="fw-semibold mb-1 card-title">{{ item.name }}</h6>
@@ -84,18 +85,12 @@
         box-shadow: 0 0 10px rgba(40, 167, 69, 0.3);
     }
 
-    .card.hardware-card.selected {
-        background-color: #343a40;
-        border-color: #28a745;
-        color: #fff;
-    }
-
-    .card.hardware-card.selected .card-meta {
-        color: #ccc !important;
-    }
-
     .card-title {
         font-size: 1.1rem;
+    }
+
+    .card-meta {
+        font-size: 0.85rem;
     }
 </style>
 
@@ -114,7 +109,7 @@
             });
         });
 
-        // Pagination Function
+        // Pagination
         const paginateCards = (containerId, prevBtnId, nextBtnId, cardsPerPage = 6) => {
             let currentPage = 1;
             const container = document.getElementById(containerId);
@@ -132,7 +127,7 @@
             const renderPage = () => {
                 cards.forEach((card, index) => {
                     card.style.display = (index >= (currentPage - 1) * cardsPerPage && index < currentPage * cardsPerPage)
-                        ? "block" : "none";
+                        ? "" : "none";
                 });
                 prevBtn.disabled = currentPage === 1;
                 nextBtn.disabled = currentPage === totalPages;
@@ -155,7 +150,6 @@
             renderPage();
         };
 
-        // Apply pagination
         paginateCards("leasedList", "prevLeasedBtn", "nextLeasedBtn");
         paginateCards("unleasedList", "prevUnleasedBtn", "nextUnleasedBtn");
     });
