@@ -2,7 +2,10 @@
 {% block title %}Hardware List{% endblock %}
 
 {% block content %}
-<div class="row pt-4">
+<div class="container py-4">
+    <h2 class="mb-4">Hardware Board List</h2>
+
+    <!-- Tabs -->
     <ul class="nav nav-tabs nav-justified" id="hardwareTabs" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="leased-tab" data-bs-toggle="tab"
@@ -19,82 +22,142 @@
             </button>
         </li>
     </ul>
-</div>
 
-<div class="tab-content pt-3" id="hardwareTabsContent">
-    <div class="tab-pane fade show active" id="leased_hardware" role="tabpanel" aria-labelledby="leased-tab">
-        <div class="container">
-            <div class="input-group mb-3">
-                <input type="text" class="form-control live-search-box" placeholder="Enter board name...">
+    <!-- Tab Content -->
+    <div class="tab-content pt-4" id="hardwareTabsContent">
+        <!-- Leased Hardware Tab -->
+        <div class="tab-pane fade show active" id="leased_hardware" role="tabpanel" aria-labelledby="leased-tab">
+            <input type="text" class="form-control live-search-box mb-3" placeholder="Enter board name...">
+            <div class="d-flex flex-column gap-3 live-search-list" id="leasedList">
+                {% for item in active_checkouts %}
+                <div class="card-wrapper">
+                    <div class="card p-3 shadow-sm border border-secondary hardware-card">
+                        <div class="card-details">
+                            <h6 class="fw-semibold mb-1 card-title">{{ item.hardware.name }}</h6>
+                            <small class="text-muted card-meta">Leased by: {{ item.hw_leaser.username }}</small><br>
+                            <small class="text-muted card-meta">Owner: {{ item.hardware.hw_owner.username }}</small><br>
+                            <small class="text-muted card-meta">Leased on: {{ item.checkout_date }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th>Hardware Name</th>
-                            <th>Leased By</th>
-                            <th>Owner</th>
-                            <th>Leased On</th>
-                        </tr>
-                    </thead>
-                    <tbody class="live-search-list">
-                        {% for item in active_checkouts %}
-                        <tr>
-                            <td>{{ item.hardware.name }}</td>
-                            <td>{{ item.hw_leaser.username }}</td>
-                            <td>{{ item.hardware.hw_owner.username }}</td>
-                            <td>{{ item.checkout_date }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="d-flex justify-content-center gap-2 mt-3">
+                <button type="button" class="btn btn-outline-light btn-sm" id="prevLeasedBtn">Previous</button>
+                <button type="button" class="btn btn-outline-light btn-sm" id="nextLeasedBtn">Next</button>
             </div>
         </div>
-    </div>
 
-    <div class="tab-pane fade" id="unleased_hardware" role="tabpanel" aria-labelledby="unleased-tab">
-        <div class="container">
-            <div class="input-group mb-3">
-                <input type="text" class="form-control live-search-box" placeholder="Enter board name...">
+        <!-- Unleased Hardware Tab -->
+        <div class="tab-pane fade" id="unleased_hardware" role="tabpanel" aria-labelledby="unleased-tab">
+            <input type="text" class="form-control live-search-box mb-3" placeholder="Enter board name...">
+            <div class="d-flex flex-column gap-3 live-search-list" id="unleasedList">
+                {% for item in unleased_hardware %}
+                <div class="card-wrapper">
+                    <div class="card p-3 shadow-sm border border-secondary hardware-card">
+                        <div>
+                            <h6 class="fw-semibold mb-1 card-title">{{ item.name }}</h6>
+                            <small class="text-muted card-meta">Owner: {{ item.hw_owner.username }}</small><br>
+                            <small class="text-muted card-meta">Available: {{ item.count }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th>Hardware Name</th>
-                            <th>Owner</th>
-                            <th>Count</th>
-                        </tr>
-                    </thead>
-                    <tbody class="live-search-list">
-                        {% for item in unleased_hardware %}
-                        <tr>
-                            <td>{{ item.name }}</td>
-                            <td>{{ item.hw_owner.username }}</td>
-                            <td>{{ item.count }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="d-flex justify-content-center gap-2 mt-3">
+                <button type="button" class="btn btn-outline-dark btn-sm" id="prevUnleasedBtn">Previous</button>
+                <button type="button" class="btn btn-outline-dark btn-sm" id="nextUnleasedBtn">Next</button>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .card.hardware-card {
+        background-color: #f0f0f0;
+        color: #000;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .card.hardware-card:hover {
+        border-color: #28a745;
+        box-shadow: 0 0 10px rgba(40, 167, 69, 0.3);
+    }
+
+    .card.hardware-card.selected {
+        background-color: #343a40;
+        border-color: #28a745;
+        color: #fff;
+    }
+
+    .card.hardware-card.selected .card-meta {
+        color: #ccc !important;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+    }
+</style>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // Live Search
         document.querySelectorAll(".live-search-box").forEach(input => {
             input.addEventListener("input", function () {
                 const searchTerm = this.value.toLowerCase();
-                const tbody = this.closest(".container").querySelector(".live-search-list");
-                const rows = tbody.querySelectorAll("tr");
-
-                rows.forEach(row => {
-                    const match = row.textContent.toLowerCase().includes(searchTerm);
-                    row.style.display = match ? "" : "none";
+                const container = this.nextElementSibling;
+                const cards = container.querySelectorAll(".card-wrapper");
+                cards.forEach(card => {
+                    const match = card.textContent.toLowerCase().includes(searchTerm);
+                    card.style.display = match ? "" : "none";
                 });
             });
         });
+
+        // Pagination Function
+        const paginateCards = (containerId, prevBtnId, nextBtnId, cardsPerPage = 6) => {
+            let currentPage = 1;
+            const container = document.getElementById(containerId);
+            const prevBtn = document.getElementById(prevBtnId);
+            const nextBtn = document.getElementById(nextBtnId);
+            const cards = container.querySelectorAll(".card-wrapper");
+            const totalPages = Math.ceil(cards.length / cardsPerPage);
+
+            if (cards.length <= cardsPerPage) {
+                prevBtn.style.display = "none";
+                nextBtn.style.display = "none";
+                return;
+            }
+
+            const renderPage = () => {
+                cards.forEach((card, index) => {
+                    card.style.display = (index >= (currentPage - 1) * cardsPerPage && index < currentPage * cardsPerPage)
+                        ? "block" : "none";
+                });
+                prevBtn.disabled = currentPage === 1;
+                nextBtn.disabled = currentPage === totalPages;
+            };
+
+            prevBtn.addEventListener("click", () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderPage();
+                }
+            });
+
+            nextBtn.addEventListener("click", () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderPage();
+                }
+            });
+
+            renderPage();
+        };
+
+        // Apply pagination
+        paginateCards("leasedList", "prevLeasedBtn", "nextLeasedBtn");
+        paginateCards("unleasedList", "prevUnleasedBtn", "nextUnleasedBtn");
     });
 </script>
 {% endblock %}
