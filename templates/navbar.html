@@ -1,70 +1,69 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark py-2 shadow-sm">
-  <div class="container-fluid">
-    <!-- Brand with icon -->
-    <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
-      <i class="bi bi-cpu-fill me-2 text-danger"></i>
-      <span class="fw-medium">HW Inventory</span>
-    </a>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <!-- Brand with icon -->
+        <a class="navbar-brand d-flex align-items-center fw-medium" href="{{ url_for('index') }}">
+            <i class="bi bi-cpu-fill me-2 text-danger"></i>
+            HW Inventory
+        </a>
 
-    <!-- Toggler for mobile -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
-      aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+        <!-- Hamburger button -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+            aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-    <!-- Main nav content -->
-    <div class="collapse navbar-collapse" id="navbarMain">
-      <!-- Left links -->
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link {% if 'hardware_list' in active_page %}active{% endif %}" href="{{ url_for('hardware_list') }}">
-            Hardware List
-          </a>
-        </li>
-        {% if current_user.is_authenticated %}
-        <li class="nav-item">
-          <a class="nav-link {% if 'checkout' in active_page %}active{% endif %}" href="{{ url_for('checkout') }}">
-            Checkout
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link {% if 'return_hardware' in active_page %}active{% endif %}" href="{{ url_for('return_hardware') }}">
-            Return
-          </a>
-        </li>
-        {% endif %}
-      </ul>
+        <!-- Collapsible nav -->
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <!-- Left side nav links -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link {% if 'hardware_list' in active_page %}active{% endif %}"
+                        href="{{ url_for('hardware_list') }}">Hardware List</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'checkout' in active_page %}active{% endif %}"
+                        href="{{ url_for('checkout') }}">Checkout</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'return_hardware' in active_page %}active{% endif %}"
+                        href="{{ url_for('return_hardware') }}">Return</a>
+                </li>
+            </ul>
 
-      <!-- Right user info and links -->
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
-        {% if current_user.is_authenticated %}
-        <li class="nav-item text-light me-3 small d-none d-lg-block">
-          👋 <span class="opacity-75">Hello, <strong>{{ current_user.username }}</strong></span>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link {% if 'pending' in active_page %}active{% endif %}" href="{{ url_for('pending') }}">
-            Pending
-          </a>
-        </li>
-        {% if is_hw_owner %}
-        <li class="nav-item">
-          <a class="nav-link {% if 'owner_actions' in active_page %}active{% endif %}" href="{{ url_for('owner_actions') }}">
-            Owner Actions
-          </a>
-        </li>
-        {% endif %}
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-        </li>
-        {% else %}
-        <li class="nav-item">
-          <a class="nav-link {% if 'login' in active_page %}active{% endif %}" href="{{ url_for('login') }}">Login</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link {% if 'signup' in active_page %}active{% endif %}" href="{{ url_for('signup') }}">Sign Up</a>
-        </li>
-        {% endif %}
-      </ul>
+            <!-- Right side nav links -->
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                {% if current_user.is_authenticated %}
+                <!-- Greeting -->
+                <li class="nav-item d-flex align-items-center px-2 text-light">
+                    <span class="navbar-text">
+                        👋 Hello, <b>{{ current_user.username }}</b>
+                    </span>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'pending' in active_page %}active{% endif %}"
+                        href="{{ url_for('pending') }}">Pending</a>
+                </li>
+                {% if is_hw_owner %}
+                <li class="nav-item">
+                    <a class="nav-link {% if 'owner_actions' in active_page %}active{% endif %}"
+                        href="{{ url_for('owner_actions') }}">Owner Actions</a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link {% if 'logout' in active_page %}active{% endif %}"
+                        href="{{ url_for('logout') }}">Logout</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link {% if 'login' in active_page %}active{% endif %}"
+                        href="{{ url_for('login') }}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'signup' in active_page %}active{% endif %}"
+                        href="{{ url_for('signup') }}">Sign Up</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
     </div>
-  </div>
 </nav>
