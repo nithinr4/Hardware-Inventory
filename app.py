@@ -159,7 +159,6 @@ def return_hardware():
         checkout_ids = request.form.getlist('checkout_ids')
         for checkout_id in checkout_ids:
             checkout = Checkout.query.get(checkout_id)
-
             if checkout and checkout.user_id == current_user.id and not checkout.return_date:
                 # hardware = Hardware.query.get(checkout.hardware_id)
                 # hardware.count += 1
